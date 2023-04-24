@@ -74,18 +74,18 @@ int main() {
 	{
 		// 读取输入文件数据
 		string input_filename;
-		printWithColor(">>>>请输入转换文件的路径或将文件拖入窗口中>>>>", 7);
+		printWithColor(">>>>Enter the file path or drag the file into the window>>>>", 7);
 		cin >> input_filename;
 		ifstream input_file(input_filename, ios::binary | ios::ate);
 
 		if (input_file)
 		{
-			printWithColor(">>>>读取成功>>>>", 47);
+			printWithColor(">>>>Read successfully>>>>", 47);
 			//Beep(300, 150);
 
 			string command;
 
-			printWithColor(">>>>选择加密还是解密>>>> (E/D)", 7);
+			printWithColor(">>>>Choose to encrypt or decrypt (E/D)>>>>", 7);
 
 			cin >> command;
 			if (command == "E")
@@ -120,7 +120,7 @@ int main() {
 				output_file.write(input_data.data(), input_data.size());
 				output_file.write(returnFileType(input_filename).c_str(), 6);
 				output_file.close();
-				printWithColor(">>>>加密成功>>>>", 47);
+				printWithColor(">>>>Encrypt successfully>>>>", 47);
 			}
 			else if (command == "D")
 			{
@@ -148,7 +148,7 @@ int main() {
 		}
 		else
 		{
-			printWithColor("!!!!读取失败!!!!", 79);
+			printWithColor("!!!!Read Error!!!!", 79);
 			Sleep(500);
 			//Beep(523, 400);
 			system("cls");
@@ -193,7 +193,7 @@ void readBmpPixelData(const string& bmpFilePath, const string& outputFilePath)
 	}
 	else
 	{
-		printWithColor(">>>>解码成功>>>>", 47);
+		printWithColor(">>>>Decrypt successfully>>>>", 47);
 	}
 
 	outputFile.write(pixelData.data(), pixelData.size() - 6);
