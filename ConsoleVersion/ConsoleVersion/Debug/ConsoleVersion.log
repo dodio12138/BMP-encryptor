@@ -1,0 +1,6 @@
+﻿  ConsoleVersion.cpp
+f:\github\bmpencryption\consoleversion\consoleversion\consoleversion.cpp(85): warning C4244: “参数”: 从“std::streamsize”转换到“const unsigned int”，可能丢失数据
+f:\github\bmpencryption\consoleversion\consoleversion\consoleversion.cpp(91): warning C4244: “=”: 从“std::streamsize”转换到“uint32_t”，可能丢失数据
+f:\github\bmpencryption\consoleversion\consoleversion\consoleversion.cpp(92): warning C4244: “=”: 从“double”转换到“int32_t”，可能丢失数据
+f:\github\bmpencryption\consoleversion\consoleversion\consoleversion.cpp(93): warning C4244: “=”: 从“double”转换到“int32_t”，可能丢失数据
+  ConsoleVersion.vcxproj -> F:\github\BmpEncryption\ConsoleVersion\Debug\ConsoleVersion.exe
