@@ -47,6 +47,8 @@ string returnFileType(string str);
 
 vector<string> split(const string &s, char delim);
 
+void printWithColor(string str, int color);
+
 int main() {
 
 	// 设置控制台窗口大小和位置
@@ -55,84 +57,104 @@ int main() {
 	GetWindowRect(console, &rect);
 	MoveWindow(console, rect.left, rect.top, 600, 600, TRUE);
 	SetWindowPos(console, HWND_TOP, 100, 100, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW);
+	
+	SetConsoleTitle("Everything2BMP");
+
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+
+	HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+	DWORD mode;
+
+	GetConsoleMode(hInput, &mode);
+	mode &= ~ENABLE_QUICK_EDIT_MODE;
+	mode |= ENABLE_MOUSE_INPUT;
+	SetConsoleMode(hInput, mode | ENABLE_MOUSE_INPUT);
 
 	while (1) 
 	{
 		// 读取输入文件数据
 		string input_filename;
-		cout << "请输入需要转换的文件:" << endl;
+		printWithColor(">>>>请输入转换文件的路径或将文件拖入窗口中>>>>", 7);
 		cin >> input_filename;
 		ifstream input_file(input_filename, ios::binary | ios::ate);
 
 		if (input_file)
 		{
-			cout << "读取成功" << endl;
+			printWithColor(">>>>读取成功>>>>", 47);
+			//Beep(300, 150);
 
+			string command;
+
+			printWithColor(">>>>选择加密还是解密>>>> (E/D)", 7);
+
+			cin >> command;
+			if (command == "E")
+			{
+				streamsize input_size = input_file.tellg();
+				input_file.seekg(0, ios::beg);
+				vector<char> input_data(input_size);
+				input_file.read(input_data.data(), input_size);
+
+				// 计算BMP文件的大小和数据偏移量
+				BMPHeader bmp_header;
+				BMPInfoHeader bmp_info_header;
+				bmp_header.bfSize = sizeof(BMPHeader) + sizeof(BMPInfoHeader) + input_size; // BMP文件的大小
+				bmp_info_header.biWidth = std::sqrt((bmp_header.bfSize - 54) / 4); // BMP图像的宽度，以像素为单位
+				bmp_info_header.biHeight = std::sqrt((bmp_header.bfSize - 54) / 4); // BMP图像的高度，以像素为单位
+				bmp_info_header.biBitCount = getPixelSize(bmp_info_header.biWidth, bmp_info_header.biHeight, bmp_header.bfSize); // BMP图像每个像素的位数
+
+				// 将BMPHeader和BMPInfoHeader写入输出文件
+				// 根据输入文件的大小和BMP文件的头部和像素数据大小计算BMP文件大小
+				// 计算BMP文件头部和像素数据的偏移量
+				// 构造BMP文件头和信息头
+				// 注意：BMP文件头和信息头的各个字段需要按照BMP文件格式要求进行填充
+
+				// 构造BMP文件像素数据
+				// 注意：BMP文件像素数据的各个部分需要按照BMP文件格式要求进行填充
+
+				// 将BMP文件数据写入输出文件
+				string output_filename = "output.bmp";
+				ofstream output_file(output_filename, ios::binary);
+				output_file.write(reinterpret_cast<const char*>(&bmp_header), sizeof(bmp_header));
+				output_file.write(reinterpret_cast<const char*>(&bmp_info_header), sizeof(bmp_info_header));
+				output_file.write(input_data.data(), input_data.size());
+				output_file.write(returnFileType(input_filename).c_str(), 6);
+				output_file.close();
+				printWithColor(">>>>加密成功>>>>", 47);
+			}
+			else if (command == "D")
+			{
+				streampos pos = input_file.tellg(); // 获取文件大小
+				if (pos >= 6) {
+					pos -= 6; // 移动读取位置到文件结尾前6个字节的位置
+				}
+				else {
+					pos = 0;
+				}
+				input_file.seekg(pos);
+
+				char buffer[6];
+				input_file.read(buffer, 6); // 读取倒数6个字节的数据
+				std::string str(buffer);
+				input_file.seekg(0);
+				readBmpPixelData(input_filename, "output." + str);
+			}
+			else if (command == "exit")
+			{
+				return 0;
+			}
+			Sleep(500);
+			system("cls");
 		}
 		else
 		{
-			cout << "读取失败" << endl;
-			return 1;
+			printWithColor("!!!!读取失败!!!!", 79);
+			Sleep(500);
+			//Beep(523, 400);
+			system("cls");
 		}
 
-		string command;
-		cout << "选择加密还是解密（E/D）" << endl;
-		cin >> command;
-		if (command == "E")
-		{
-			streamsize input_size = input_file.tellg();
-			input_file.seekg(0, ios::beg);
-			vector<char> input_data(input_size);
-			input_file.read(input_data.data(), input_size);
-
-			// 计算BMP文件的大小和数据偏移量
-			BMPHeader bmp_header;
-			BMPInfoHeader bmp_info_header;
-			bmp_header.bfSize = sizeof(BMPHeader) + sizeof(BMPInfoHeader) + input_size; // BMP文件的大小
-			bmp_info_header.biWidth = std::sqrt((bmp_header.bfSize - 54) / 4); // BMP图像的宽度，以像素为单位
-			bmp_info_header.biHeight = std::sqrt((bmp_header.bfSize - 54) / 4); // BMP图像的高度，以像素为单位
-			bmp_info_header.biBitCount = getPixelSize(bmp_info_header.biWidth, bmp_info_header.biHeight, bmp_header.bfSize); // BMP图像每个像素的位数
-
-			// 将BMPHeader和BMPInfoHeader写入输出文件
-			// 根据输入文件的大小和BMP文件的头部和像素数据大小计算BMP文件大小
-			// 计算BMP文件头部和像素数据的偏移量
-			// 构造BMP文件头和信息头
-			// 注意：BMP文件头和信息头的各个字段需要按照BMP文件格式要求进行填充
-
-			// 构造BMP文件像素数据
-			// 注意：BMP文件像素数据的各个部分需要按照BMP文件格式要求进行填充
-
-			// 将BMP文件数据写入输出文件
-			string output_filename = "output.bmp";
-			ofstream output_file(output_filename, ios::binary);
-			output_file.write(reinterpret_cast<const char*>(&bmp_header), sizeof(bmp_header));
-			output_file.write(reinterpret_cast<const char*>(&bmp_info_header), sizeof(bmp_info_header));
-			output_file.write(input_data.data(), input_data.size());
-			output_file.write(returnFileType(input_filename).c_str(), 6);
-			output_file.close();
-			cout << "加密成功" << endl;
-		}
-		else if (command == "D")
-		{
-			streampos pos = input_file.tellg(); // 获取文件大小
-			if (pos >= 6) {
-				pos -= 6; // 移动读取位置到文件结尾前6个字节的位置
-			}
-			else {
-				pos = 0;
-			}
-			input_file.seekg(pos);
-
-			char buffer[6];
-			input_file.read(buffer, 6); // 读取倒数6个字节的数据
-			std::string str(buffer);
-			input_file.seekg(0);
-			readBmpPixelData(input_filename, "output." + str);
-		}
-		else if(command == "exit")
-		{
-			return 0;
-		}
+		
 	}
 
 	// 反解码为原始文件
@@ -171,7 +193,7 @@ void readBmpPixelData(const string& bmpFilePath, const string& outputFilePath)
 	}
 	else
 	{
-		cerr << "解码成功"<< endl;
+		printWithColor(">>>>解码成功>>>>", 47);
 	}
 
 	outputFile.write(pixelData.data(), pixelData.size() - 6);
@@ -189,7 +211,7 @@ int getPixelSize(int width, int height, int fileSize) {
 string returnFileType(string str) 
 {
 	vector<string> tokens = split(str, '.');
-	return tokens[1];
+	return tokens[tokens.size() - 1];
 }
 
 vector<string> split(const string &s, char delim) {
@@ -200,4 +222,11 @@ vector<string> split(const string &s, char delim) {
         tokens.push_back(item);
     }
     return tokens;
+}
+
+void printWithColor(string str,int color)
+{
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+	cout << str << endl;
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
 }
