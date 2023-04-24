@@ -58,7 +58,7 @@ int main() {
 	MoveWindow(console, rect.left, rect.top, 600, 600, TRUE);
 	SetWindowPos(console, HWND_TOP, 100, 100, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW);
 	
-	SetConsoleTitle("Everything2BMP");
+	SetConsoleTitle("BmpEncryptor");
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
 
